@@ -1,0 +1,107 @@
+---
+title: "Time Series Project"
+output: html_document
+---
+
+```{r}
+
+```
+
+
+
+```{r}
+library(readr)
+Netflix <- read_csv("~/Downloads/multiTimeline (2).csv")
+require(astsa)
+library(forecast)
+attach(Netflix)
+NetflixUS = `Netflix: (United States)`
+Week = as.Date(Week,"%Y/%m/%d")
+NetflixUS = ts(NetflixUS[1:247],start=c(2012,5),frequency = 52)
+plot(NetflixUS, xlab = "Year",ylab = "Search Volume", main = "Netflix Search Volume, Past 5 Years")
+
+diff = diff(NetflixUS,52)
+plot(diff, xlab = "Year",ylab = "Search Volume", main = "Seasonal Differenced Netflix Search Volume, Past 5 Years")
+acf <- acf(diff, plot=FALSE,lag.max = 200)
+acf$lag <- acf$lag * 52
+plot(acf, main = "ACF after Seasonal Difference")
+pacf <- pacf(diff, plot=FALSE,lag.max = 259)
+pacf$lag <- pacf$lag * 52
+plot(pacf, main = "PACF after Seasonal Difference")
+
+diff2 = diff(diff(NetflixUS,52))
+plot(diff2, xlab = "Year",ylab = "Search Volume", main = "Differenced Netflix Search Volume, Past 5 Years")
+acf2 <- acf(diff2, plot=FALSE,lag.max = 200)
+acf2$lag <- acf2$lag * 52
+plot(acf2, main = "ACF after Differencing")
+pacf2 <- pacf(diff2, plot=FALSE,lag.max = 259)
+pacf2$lag <- pacf2$lag * 52
+plot(pacf2, main = "PACF after Differencing")
+
+
+#testing models
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,1),period=52))$aic
+
+arima(NetflixUS,order=c(0,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(2,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(4,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+
+#when AR = 1, both differences, varying MA 
+arima(NetflixUS,order=c(1,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,1),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,2),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,3),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,4),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(1,1,5),seasonal=list(order=c(0,1,0),period=52))$aic
+
+#when AR = 2, both differences, varying MA 
+arima(NetflixUS,order=c(2,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(2,1,1),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(2,1,2),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(2,1,3),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(2,1,4),seasonal=list(order=c(0,1,0),period=52))$aic
+arima(NetflixUS,order=c(2,1,5),seasonal=list(order=c(0,1,0),period=52))$aic
+
+#when AR = 3, both differences, varying MA 
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(3,1,1),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(3,1,2),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(3,1,3),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(3,1,4),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+
+#playing with AR = 3
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,0),period=52))$aic
+#when varying MA, MA 4 is best
+#when varying s-AR - ok you can't, beyond 1
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(1,1,0),period=52))$aic
+#when varying s-MA
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,1),period=52))$aic
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,2),period=52))$aic
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,3),period=52))$aic
+arima(NetflixUS,order=c(3,1,0),seasonal=list(order=c(0,1,4),period=52))$aic
+#varying s-MA with AR 
+
+#MA1
+arima(NetflixUS,order=c(3,1,1),seasonal=list(order=c(3,1,0),period=52))$aic
+arima(NetflixUS,order=c(3,1,2),seasonal=list(order=c(3,1,0),period=52))$aic
+arima(NetflixUS,order=c(3,1,3),seasonal=list(order=c(3,1,0),period=52))$aic
+arima(NetflixUS,order=c(3,1,4),seasonal=list(order=c(3,1,0),period=52))$aic
+
+
+#when AR = 4, both differences, varying MA 
+arima(NetflixUS,order=c(4,1,0),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(4,1,1),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(4,1,2),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(4,1,3),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+arima(NetflixUS,order=c(4,1,4),seasonal=list(order=c(0,1,0),period=52),method="ML")$aic
+
+#best one
+fit = arima(NetflixUS,order=c(3,1,4),seasonal=list(order=c(1,1,0),period=52))
+tsdiag(arima(NetflixUS,order=c(3,1,4),seasonal=list(order=c(1,1,0),period=52)))
+pred = predict(arima(NetflixUS,order=c(3,1,4),seasonal=list(order=c(1,1,0),period=52)),n.ahead=4)
+
+plot(forecast(fit, h=52))
+```
+
