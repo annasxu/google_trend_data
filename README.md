@@ -1,0 +1,2 @@
+# google_trend_data
+In this paper, we used time series analysis to analyze data on how frequently “Netflix” is searched for in Google over time. Our findings would allow companies to make better business decisions with the knowledge of when people are likely looking to stay in and watch movies. After preliminary analysis, we found that the data is highly seasonal; hence, we fit a seasonal ARIMA model and determined the best performing model was ARIMA (4,1,3)(1,1,0).
